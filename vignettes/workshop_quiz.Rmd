@@ -1,0 +1,19 @@
+---
+title: "Quiz: Integration of ChIP-seq and RNA-seq data in R"
+author: Mahmoud Ahmed^[mahshaaban@gnu.ac.kr]
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quiz: Integration of ChIP-seq and RNA-seq data in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Quiz

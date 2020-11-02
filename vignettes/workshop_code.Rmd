@@ -1,0 +1,416 @@
+---
+title: "Integration of ChIP-seq and RNA-seq data in R"
+author: Mahmoud Ahmed^[mahshaaban@gnu.ac.kr]
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{Integration of ChIP-seq and RNA-seq data in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r load_libraries}
+# load required libraries
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(GenomicRanges)
+library(Biostrings)
+library(rtracklayer)
+library(AnnotationDbi)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+library(target)
+```
+
+# Use Case 
+
+YY1 and YY2 belongs to the same family of transcription factors. YY1 is a zinc 
+finger protein which direct deacetylase and histone acetyltransferases of the 
+promoters of many genes. The results of the binding of YY1 to the regulatory 
+regions of genes is the induction or repression of their expression. YY2 is a 
+parloge of YY1. Similarly, it is a zinc finger protein with both activation or 
+repression functions on its targets. Using the target analysis, we will attempt 
+to answer the following questions. Do the two transcription factors share the 
+same target genes? What are the consequences of the binding of each factor on 
+its targets? If the two factors share binding sites, what is the function of the 
+binding of the two factor to these sites?
+
+To answer these questions, we use publicly available datasets to model the 
+binding and gene expression under the transcription factors perturbations (Table
+\@ref(tab:datasets)). This dataset was obtained in the form of differential 
+expression between the two conditions from 
+[KnockTF](http://www.licpathway.net/KnockTF/index.html). The first dataset is 
+geneexpression profiling using microarrays of YY1/YY2 knockdown and control HeLa
+cells. The binding sites of the factors in HeLa cells were determined using two 
+ChIP-Seq datasets. The ChIP peaks were obtained in the form of bed files from 
+[ChIP-Atlas](https://chip-atlas.org). Finally, we used the USSC hg19 human 
+genome to extract the genomic annotations.
+
+Briefly, we first prepared the three sources of data for the target analysis. 
+Then we predict the specific targets for each individual factors. Third, we 
+predict the combined function of the two factors on the shared target genes. 
+Finally, we show an example of a motif analysis of the competitively and 
+cooperatively regulated targets.
+
+: (\#tab:datasets) Expression and binding data of YY1 and YY2 in HeLa cells.
+
+| GEO ID | Data Type   | Design        | Ref.         |
+|--------|-------------|---------------|--------------|
+|GSE14964| Microarrays | YY#-knockdown | @Chen2010    |
+|GSE31417| ChIP-Seq    | YY1 vs input  | @Michaud2013 |
+|GSE96878| ChIP-Seq    | YY2 vs input  | @Wu2017d     |
+
+```{r download,include=FALSE}
+if(!file.exists('data.zip')) {
+  # download the manuscript data
+  download.file(
+    'https://ndownloader.figshare.com/articles/10918463/versions/1',
+    destfile = 'data.zip'
+    )
+  
+  # decompress file
+  unzip('data.zip', exdir = 'data')
+}
+```
+
+## Preparing the binding data
+
+The ChIP peaks were downloaded in the form of separate bed files for each 
+factor. We first locate the files in the `data/` directory and load the files 
+using `import.bed`. Then the data is transformed into a suitable format, 
+`GRanges`. The resulting object, `peaks`, is a `list` of two `GRanges` items, 
+one for each factor.
+
+```{r load_peaks}
+# locate the peaks bed files
+peak_files <- c(YY1 = 'data/Oth.Utr.05.YY1.AllCell.bed',
+                YY2 = 'data/Oth.Utr.05.YY2.AllCell.bed')
+
+# load the peaks bed files as GRanges
+peaks <- map(peak_files, ~GRanges(import.bed(.x)))
+```
+
+## Preparing the expression data
+
+The differential expression data were downloaded in tabular format. After 
+locating the files in `data/`, we read the files using `read_tsv` and select and
+rename the relevant columns. The resulting object, `express`, is a `list` of two
+`tibble` items.
+
+```{r load_expression}
+# locate the expression text files
+expression_files <- c(YY1 = 'data/DataSet_01_18.tsv',
+                      YY2 = 'data/DataSet_01_19.tsv')
+
+# load the expression text files
+express <- map(expression_files,
+               ~read_tsv(.x, col_names = FALSE) %>%
+                 dplyr::select(2, 3, 7, 9) %>% #9
+                 setNames(c('tf', 'gene', 'fc', 'pvalue')) %>%
+                 filter(tf %in% c('YY1', 'YY2')) %>%
+                 na.omit())
+```
+
+The knockdown of either factor in HeLa cells seem to change the expression of 
+many genes in either directions (Figure \@ref(fig:foldchange)A&B). Moreover, the
+changes resulting from the knockdown of the factors individually are correlated 
+(Figure \@ref(fig:foldchange)C). This suggest that, many of the regulated genes 
+are shared targets of the two factors or they respond similarly to their 
+perturbation of either factor.
+
+```{r foldchange,fig.height=3,fig.width=9,out.width='100%',fig.cap='Differential expression between factor knockdown and control HeLa cells. Gene expression was compared between transcription factors knockdown and control HeLa cells. The fold-change and p-values of (A) YY1- and (B) YY2-knockdown are shown as volcano plots. (C) Scatter plot of the fold-change of the YY1- and YY2-knockdown.'}
+# Figure 1
+par(mfrow = c(1, 3))
+# volcano plot of YY1 knockdown
+plot(express$YY1$fc, 
+     -log10(express$YY1$pvalue),
+     xlab = 'Fold-change (log_2)',
+     ylab = 'P-value (-log_10)',
+     xlim = c(-4, 4), ylim = c(0, 6))
+title('(A)')
+
+# volcano plot of YY2 knockdown
+plot(express$YY2$fc, 
+     -log10(express$YY2$pvalue),
+     xlab = 'Fold-change (log_2)',
+     ylab = 'P-value (-log_10)',
+     xlim = c(-4, 4), ylim = c(0, 6))
+title('(B)')
+
+# plot fold-change of YY1 and YY2
+plot(express$YY1$fc[order(express$YY1$gene)],
+     express$YY2$fc[order(express$YY2$gene)],
+     xlab = 'YY1-knockdown (log_2)',
+     ylab = 'YY2-knockdown (log_2)',
+     xlim = c(-4, 4), ylim = c(-4, 4))
+title('(C)')
+```
+
+## Preparing genome annotation
+
+The gene information in `express` is recorded using the gene SYMBOLS. They need 
+to be mapped to the ENTREZIDS before extracting the genomic coordinates. To do 
+that, we use the `org.Hs.eg.db` to map between the identifiers. Next, we use the
+`TxDb.Hsapiens.UCSC.hg19.knownGene` to get the genomic coordinates for the 
+transcripts and resize them to a 100kb upstream from the transcription start 
+sites.
+
+```{r load_genome}
+# load genome data
+symbol_entrez <- AnnotationDbi::select(org.Hs.eg.db,
+                        unique(c(express$YY1$gene)),
+                        'ENTREZID', 'SYMBOL') %>%
+  setNames(c('gene', 'gene_id'))
+
+# format genome to join with express
+genome <- promoters(TxDb.Hsapiens.UCSC.hg19.knownGene,
+            upstream = 100000,
+            columns = c('tx_id', 'tx_name', 'gene_id')) %>%
+  as_tibble() %>% mutate(gene_id = as.character(gene_id))
+```
+
+The resulting object, `genome`, from the previous step is a `tibble` that shares
+the column `gene_id` with the expression data `express`. Now the two objects can
+be merged. The merged object, `regions`, is similarly a `tibble` that contains 
+genome and expression information of all common genes. 
+ 
+```{r make_regions}
+# make regions by merging the genome and express data
+regions <- map(express,
+               ~inner_join(genome, symbol_entrez) %>%
+                 inner_join(.x) %>%
+                 makeGRangesFromDataFrame(keep.extra.columns = TRUE))
+```
+
+## Predicting gene targets of individual factors
+
+The standard target analysis includes the identification of associated peaks 
+using `associated_peaks` and direct targets using `direct_targets`. The input 
+for these functions are the objects `peaks` and `regions` from the previous 
+steps in addition to the column names for regions `regions_col` or the region 
+and the statistics column `stats_col` which is the fold-change in this case. 
+The resulting objects are `GRanges` for the identified peaks assigned to the 
+regions `ap` or the ranked targets. Several columns is added to the metadata 
+objects of the `GRanges` to save the calculations.
+
+```{r target_individual}
+# get associated peaks
+ap <- map2(peaks, regions,
+           ~associated_peaks(peaks=.x,
+                             regions = .y,
+                             regions_col = 'tx_id'))
+# get direct targets
+dt <- map2(peaks, regions,
+           ~direct_targets(peaks=.x,
+                           regions = .y,
+                           regions_col = 'tx_id',
+                           stats_col = 'fc'))
+```
+
+To determine the dominant function of a factor, we divide the targets by the 
+direction of the effect of knockdown of the factor on the expression of the 
+target and show the regulatory potential of the target on these groups. We use 
+the empirical distribution function (ECDF) to show the fraction of targets 
+targets at a specified regulatory potential or less. Because the ranks rather 
+than the absolute value of the regulatory potential is used, the lower the value
+the higher the potential. Then the groups of targets can be compared to each 
+other or to a theoretical distribution.
+
+```{r functions,results='hide',fig.height=3,fig.width=9,out.width='100%',fig.cap='Predicted functions of YY1 and YY2 on their specific targets. Bindings peaks of the transcription factors in HeLa cells were determined using ChIP-Seq. Distances from the transcription start sites and the transformed distances of the (A) YY1 and YY2 peaks are shown. The regulatory potential of each gene was calculated using target. Genes were grouped into up, none or down regulated based on the fold-change. The emperical cumulative distribution functions (ECDF) of the groups of (C) YY1 and (D) YY2 targets are shown at each regulatory potential value.'}
+# Figure 2
+par(mfrow = c(1, 3))
+
+# plot distance by score of associate peaks
+plot(ap$YY1$distance, ap$YY1$peak_score,
+     xlab = 'Distance', ylab = 'Peak Score',
+     main = '(A)')
+points(ap$YY2$distance, ap$YY2$peak_score)
+
+# make labels, colors and groups
+labs <- c('Down', 'None', 'Up')
+cols <- c('green', 'gray', 'red')
+
+# make three groups by quantiles      
+groups <- map(dt,~{
+  cut(.x$stat, breaks = 3, labels = labs)
+})
+
+# plot the group functions
+pmap(list(dt, groups, c('(B)', '(C)')), function(x, y, z) {
+      plot_predictions(x$score_rank,
+                       group = y, colors = cols, labels = labs,
+                       xlab = 'Regulatory Potential', ylab = 'ECDF')
+      title(z)
+    })
+```
+
+The scores of the individual peaks are a decreasing function of the distance 
+from the transcription start sites. The closer the factor binding site from the 
+start site the lower the score. The distribution of these scores is very similar
+for both factors (Figure \@ref(fig:functions)A). The ECDF of the down-regulated 
+of YY1 is higher than that of up- and none-regulated targets (Figure \@ref(fig:functions)B). Therefore, the absence of YY1 on its targets result in 
+aggregate in their down regulation. If indeed these are true targets then we 
+expect YY1 to induce their expression. The opposite is true for YY2 where more 
+high ranking targets are up-regulated by the factor knockdown (Figure 
+\@ref(fig:functions)C).
+
+```{r tests,eval=FALSE}
+# Table 2
+# test individual factor functions
+map2(dt, groups,
+     ~test_predictions(.x$rank,
+                       group = .y,
+                       compare = c('Down', 'Up')))
+```
+
+: (\#tab:tests) Testing for statistical significance of the regulated gene groups.
+
+| Factor | Statistic| P.value| Method             | Alternative |
+|--------|----------|--------|--------------------|-------------|
+| YY1    | 0.224    | 2.2e-16| Two-sample KS test | two-sided   |
+| YY2    | 0.149    | 2.5e-15| Two-sample KS test | two-sided   |
+
+To formally test these observations, we use the Kolmogorov-Smirnov (KS) test. 
+The distribution of the two groups are compared for equality. If one lies one 
+either side of the other then they must be drawn from different distributions. 
+Here, we compared the up and down regulated functions for both factors (Table \@ref(tab:tests)). In both cases, the distribution of the two groups were 
+significantly different from one another.
+
+## Predicting the shared targets of two factors
+
+Using target to predict the shared target genes and the combined function of the
+two factors is a variation of the previous analysis. First, the shared/common 
+peaks are generated using the overlap of their genomic coordinates, 
+`subsetByOverlaps`. Second, Instead of one, two columns for the differential 
+expression statistics one for each factor are needed; these are supplied to the 
+argument `stats_col` in the same way. Here, `common_peaks` and `both_regions` 
+are the main inputs for the analysis functions. 
+
+```{r common_peaks}
+# merge and name peaks
+common_peaks <- GenomicRanges::reduce(subsetByOverlaps(peaks$YY1, peaks$YY2))
+common_peaks$name <- paste0('common_peak_', 1:length(common_peaks))
+```
+
+```{r reshape_express}
+# bind express tables into one
+both_express <- bind_rows(express) %>%
+  nest(fc, pvalue, .key = 'values_col') %>%
+  spread(tf, values_col) %>%
+  unnest(YY1, YY2, names_sep = '_')
+
+# make regions using genome and expression data of both factors
+both_regions <- inner_join(genome, symbol_entrez) %>%
+  inner_join(both_express) %>%
+  makeGRangesFromDataFrame(keep.extra.columns = TRUE)
+```
+
+```{r targer_common}
+# get associated peaks with both factors
+common_ap <- associated_peaks(peaks = common_peaks,
+                              regions = both_regions,
+                              regions_col = 'tx_id')
+
+# get direct targets of both factors
+common_dt <- direct_targets(peaks = common_peaks,
+                            regions = both_regions,
+                            regions_col = 'tx_id',
+                            stats_col = c('YY1_fc', 'YY2_fc'))
+```
+
+The output of `associated_peaks` is the same as before. `direct_targets` is the 
+same but the `stat` and the `stat_rank` carry the product of the two statistics 
+provided in the previous step and the rank of that product.
+
+The output can also be visualized the same way. The targets are divided into 
+three groups based on the statistics product. When the two statistics agree in 
+the sign, the product is positive. This means the knockdown of either 
+transcription factor results in same direction change in the target gene 
+expression. Therefore, the two factors would cooperate if they bind to the same 
+site on that gene. The reverse is true for targets with opposite signed 
+statistics. On these targets, the two factors would be expected to compete for 
+inducing opposing changes in the expression.
+
+```{r function,fig.height=5,fig.width=10,out.width='100%',fig.cap='Predicted function of YY1 and YY2 on their shared targets. Shared bindings sites of YY1 and YY2 in HeLa cells were determined using the overlap of the individual factor ChIP-Seq peaks. (A) Distances from the transcription start sites and the transformed distances of the shared peaks are shown. The regulatory interaction of each gene was calculated using target. Genes were grouped into cooperatively, none or competitively regulated based on the the product of the fold-changes from YY1- and YY2-knockdown. (B) The emperical cumulative distribution functions (ECDF) of the groups of targets are shown at each regulatory potential value.'}
+# Figure 3
+par(mfrow = c(1, 2))
+# plot distiace by score for associated peaks
+plot(common_ap$distance,
+     common_ap$peak_score,
+     xlab = 'Distance',
+     ylab = 'Peak Score')
+title('(A)')
+
+# make labels, colors and gorups
+labs <- c('Competitive', 'None', 'Cooperative')
+cols <- c('green', 'gray', 'red')
+
+# make three groups by quantiles      
+common_groups <- cut(common_dt$stat,
+                     breaks = 3,
+                     labels = labs)
+
+# plot predicted function
+plot_predictions(common_dt$score_rank,
+                 group = common_groups,
+                 colors = cols, labels = labs,
+                 xlab = 'Regulatory Interaction', ylab = 'ECDF')
+title('(B)')
+```
+
+The common peaks distances and scores take the same shape (Figure 
+\@ref(fig:function)A). The two factors seem to cooperate on more of the common 
+target than any of the two other possibilities (Figure \@ref(fig:function)B). 
+This observation can be tested using the KS test. The curve of the cooperative 
+targets lies above that of none and competitively regulated targets (Table
+\@ref(tab:test)).
+
+```{r test,eval=FALSE}
+# Table 3
+# test factors are cooperative
+test_predictions(common_dt$score_rank,
+                 group = common_groups,
+                 compare = c('Cooperative', 'None'),
+                 alternative = 'greater')
+
+# test factors are more cooperative than competitive
+test_predictions(common_dt$score_rank,
+                 group = common_groups,
+                 compare = c('Cooperative', 'Competitive'),
+                 alternative = 'greater')
+```
+
+: (\#tab:test) Testing for statistical significance of combined functions of the
+two factors.
+
+| Compare      | Statistic | P.value | Method  | Alternative                   |
+|--------------|-----------|---------|---------|-------------------------------|
+| Coop vs None | 0.168     |1.5e-30  | KS test | CDF of x lies above that of y |
+| Coop vs Comp | 0.151     |2.2e-16  | KS test | CDF of x lies above that of y |
+
+# Summary 
+
+In this article, we present a workflow for predicting the direct targets of a
+transcription factor by integrating binding and expression data. The target 
+package implements the BETA algorithm ranking gene targets based on the distance
+of the ChIP peaks of the transcription factor in the genes and the differential
+expression of the factor perturbation. To predict the combined function of two 
+factors, two sets of data are used to find the shared peaks and the product of 
+their differential expression.
+
+# References

@@ -1,0 +1,123 @@
+---
+title: "Syllabus: Integration of ChIP-seq and RNA-seq data in R"
+author: Mahmoud Ahmed^[mahshaaban@gnu.ac.kr]
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Syllabus: Integration of ChIP-seq and RNA-seq data in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+### Description
+
+Researchers use ChIP binding data to identify potential transcription factor 
+binding sites. Similarly, they use gene expression data from sequencing or microarrays to quantify the effect of the factor overexpression or knockdown on 
+its targets. The integration of the binding and expression data therefore can be
+used to improve the understanding of a transcription factor function. In this workshop, we present a complete workflow for inegrating the gene expression 
+(RNA-seq) and DNA-binding data (ChIP-seq) to predict the combined function of 
+two transcription factors using R/Bioconductor. The example we will be using in 
+the workshop is from real datasets of two functionally and evolutionary related
+transcription factors YY1 and YY2 in HeLa cells. We will try to identify the
+factor-specific and the shared targets of the factors in this particular cell 
+line. Then we will use a technique find out the aggregate functions of the 
+factors on their individual (inducer or repressor) and common targets 
+(cooperative or competitive). The first half of the workshop would be 
+dedicated to introduce and walk through the workflow interactively in a live 
+demo. In the second half, we will explore the output of the analysis to answer
+specific questions in a quiz format followed by an open discussion. 
+
+### Pre-requisites
+
+- Basic knowledge of R syntax
+- Familiarity with the GenomicRanges class
+- Readings:
+[Tang et al., 2011](https://pubmed.ncbi.nlm.nih.gov/21940749/),
+[Wang et al., 2013](https://pubmed.ncbi.nlm.nih.gov/24263090/) and 
+[Ahmed et al., 2020](https://pubmed.ncbi.nlm.nih.gov/32894066/)
+
+### Participation
+
+Participants are expected to walk through the code (rmarkdown document) by 
+cloning the workshop github repository to a rstudio cloud project or to a local 
+machine (a docker image will be provided). In the second half of the workshop, 
+participants would have the chance to explore the analysis output by answering a
+quiz using their own code and submit their questions for an open discussion.
+
+### _R_ / _Bioconductor_ packages used
+
+- target
+
+Data management
+
+- GenomicRanges
+- Biostrings
+- rtracklayer
+- AnnotationDbi
+- readr
+- dplyr
+- tidyr
+- purrr
+
+Annotation packages
+
+- TxDb.Hsapiens.UCSC.hg19.knownGene
+- org.Hs.eg.db
+
+### Time outline
+
+| Activity                        | Time |
+|---------------------------------|------|
+| Introdution to `target` package | 5m   |
+| Walk through the code           | 20m  |
+| Quiz                            | 10m  |
+| Open discussion                 | 10m  |
+
+
+### Workshop goals and objectives
+
+The workshop aims to teach participant how to use R/Bioconductor packages to 
+read in differential expression and binding peaks data, apply functions 
+predictive analysis and explore its output. We hope that by providing an 
+complete realistic example, participants would develop an understanding of the 
+issues and the importance of integrating those two types of data. Ideally,
+participants would be able to adapt this knowledge and the workflow to apply 
+this kind of analysis to their own datasets.
+
+### Learning goals
+
+- Learn to read differential expression and binding peaks data into the 
+appropriate R objects
+- Learn to use Bioconductor annotation packages to extract the genomic 
+coordinates to match peaks to genes
+- Learn to prepare the expression and binding data for `target` analysis
+- Understand the `target` output through the package visualization and testing 
+tools
+
+### Learning objectives
+
+- Read data into R data.frames and Bioconductor GRanges objects
+- Extract information from Bioconductor annotation packages TxDb and org.db
+- Apply the `target` analysis using `associated_peaks` and `direct_targets` 
+functions
+- Visualize the output using the cummulative distribution functions through
+`plot_predicitons`
+- Test the results using KS test through `test_predicitons`
+
+## Workshop
+
+The workshop is divided into two parts
+
+- Code walk through: [an early draft](vignettes/workshop_code.Rmd)
+- Quize: [quiz_code](vignettes/workshop_quiz.Rmd)
+- This workshop is based on a workflow article: [a draft](https://github.com/MahShaaban/targetFlow)
