@@ -18,8 +18,8 @@ factor-specific and the shared targets of the factors in this particular cell
 line. Then we will use a technique find out the aggregate functions of the 
 factors on their individual (inducer or repressor) and common targets 
 (cooperative or competitive). The first half of the workshop would be 
-dedicated to introduce the target package followed by walk through the workflow
-interactively in a live demo in the second half.
+dedicated to introduce the target package followed by a walk through the 
+workflow interactively in a live demo in the second half.
 
 ## Pre-requisites
 
@@ -37,7 +37,8 @@ introduction will be given at the beginning to introduce the package and
 discussion will be at the end.
 
 To run the materials locally, use the docker image 
-[mahshaaban/targetshop](https://hub.docker.com/repository/docker/mahshaaban/targetshop/) and knit the `Rmd` files from within Rstudio.
+[mahshaaban/targetshop](https://hub.docker.com/repository/docker/mahshaaban/targetshop/)
+and knit the `Rmd` files in `vignettes/` from within Rstudio.
  
 ```bash
 docker pull mahshaaban/targetshop:latest
@@ -107,11 +108,11 @@ functions
 `plot_predicitons`
 - Test the results using KS test through `test_predicitons`
 
-# Workshop (--> Next)
+### Workshop (--> Next)
 
 The workshop is divided into two parts
 
-- Introduction: [workshop_introduction](https://mahshaaban.github.io/targetShop/articles/workshop_introduction.html)
-- Code walkthrough: [workshop_code](https://mahshaaban.github.io/targetShop/articles/workshop_code.html)
+- Introduction: [Introduction: Introduction to target package](https://mahshaaban.github.io/targetShop/articles/workshop_introduction.html)
+- Code walkthrough: [Code Walkthrough: A use case of YY1 and YY2 in HeLa cells](https://mahshaaban.github.io/targetShop/articles/workshop_code.html)
 
 This workshop is based on a workflow article: [a draft](https://github.com/MahShaaban/targetFlow)

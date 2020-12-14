@@ -34,7 +34,7 @@ function; cooperative or competitive.
 ## Modeling the binding sites as the discounted distances of the ChIP peaks
 
 Peak Score ($S_p$): is the distance ($\Delta$) from transcription start site 
-(TSS) relative to a 100 kb @Wang2013b
+(TSS) relative to a 100 kb @Wang2013b.
 
 $$
 S_p = e^{-(0.5+4\Delta)}
@@ -42,7 +42,7 @@ $$
 
 The shape of the function approximate empirical observations @Tang2011
 
-```{r decay_function}
+```{r decay_function,fig.height=5,fig.width=5,fig.align='center'}
 # define distances
 d <- 1:100
 
@@ -50,11 +50,9 @@ d <- 1:100
 decay_func <- function(x) exp(-(0.5 + (4 * x/100)))
 
 # plot decay over distances
-plot(d,
-     decay_func(d),
-     pch = 19,
-     xlab = 'd = 1:100',
-     ylab = 'exp(-(0.5 + 4 * d/100))')
+plot(d, decay_func(d),
+     pch = 19, 
+     xlab = 'd = 1:100', ylab = 'exp(-(0.5 + 4 * d/100))')
 ```
 
 ## Modeling the regulatory potential as the sum of the weighted peaks
@@ -67,7 +65,7 @@ $$S_g = \sum_{i=1}^k S_{pi}$$
 Regulatory potential increases with the number of binding sites 
 @Tang2011.
 
-```{r aggregate_functions}
+```{r aggregate_functions,fig.height=5,fig.width=5,fig.align='center'}
 # define distances
 d <- 1:100
 
@@ -82,11 +80,9 @@ n <- as.numeric(table(g))
 s <- aggregate(d, list(g), sum)$x
 
 # plot aggregate distances over the number of instances
-plot(n,
-     s,
+plot(n, s,
      pch = 19,
-     xlab = 'table(g)',
-     ylab = 'aggregate(d, g, sum)')
+     xlab = 'table(g)', ylab = 'aggregate(d, g, sum)')
 ```
 
 ## Integrating the factor binding and the expression information
@@ -100,11 +96,11 @@ $$
 
 Integrate the binding events and the functional effect @Tang2011.
 
-```{r distance_stat}
+```{r distance_stat,fig.height=5,fig.width=5,fig.align='center'}
 # define distances
 d <- 1:100
 
-# make a random stat variabl
+# make a random stat variable
 set.seed(12345)
 t <- rnorm(200, 0, 5)
 
@@ -115,35 +111,22 @@ rp <- rank(abs(c(-d, d))) * rank(abs(t))
 pmax <- which(rp == max(rp))
 pmin <- which(rp == min(rp))
 
-# plot randam stats over distances
-plot(c(-d, d),
-     t,
-     pch = 19,
-     col = 'gray',
-     xlab = 'c(-d, d)',
-     ylab = 'rnorm(200, 0, 5)')
+# plot random stats over distances
+plot(c(-d, d), t,
+     pch = 19, col = 'gray',
+     xlab = 'c(-d, d)', ylab = 'rnorm(200, 0, 5)')
 
 # highlight the max rank
-points(c(-d, d)[pmax],
-       t[pmax],
-       col = 'blue',
-       pch = 19)
-
-text(c(-d, d)[pmax]+10,
-       t[pmax] + 1,
-       col = 'blue',
-       labels = 'Max')
+points(c(-d, d)[pmax], t[pmax],
+       col = 'blue', pch = 19)
+text(c(-d, d)[pmax]+10, t[pmax] + 1,
+       col = 'blue', labels = 'Max')
 
 # highlight the min rank
-points(c(-d, d)[pmin],
-       t[pmin],
-       col = 'green',
-       pch = 19)
-
-text(c(-d, d)[pmin] + 10,
-       t[pmin] + 1,
-       col = 'green',
-       label = 'Min')
+points(c(-d, d)[pmin], t[pmin],
+       col = 'green', pch = 19)
+text(c(-d, d)[pmin] + 10, t[pmin] + 1,
+       col = 'green', label = 'Min')
 
 # make quadrant lines
 abline(h = 0, col = 'red')
@@ -164,19 +147,15 @@ and,
 $$
 RP_g = \frac{R_{gb}\times RI_{ge}}{n^2}
 $$
-```{r stat_sta}
-# define a second random stat variable
-set.seed(321)
-t2 <- rnorm(200, 0, 5)
+```{r stat_stat,fig.height=5,fig.width=5,fig.align='center'}
+# define two random stat variables
+set.seed(12345); t <- rnorm(200, 0, 5)
+set.seed(321); t2 <- rnorm(200, 0, 5)
 
 # plot the two random stat variables
-plot(t, t2,
-     ylim = c(-10, 10),
-     xlim = c(-10, 10),
-     pch = 19,
-     col = 'gray',
-     xlab = 'rnorm(200, 0, 5)',
-     ylab = 'rnorm(200, 0, 5)')
+plot(t, t2, ylim = c(-10, 10),
+     xlim = c(-10, 10), pch = 19, col = 'gray',
+     xlab = 'rnorm(200, 0, 5)', ylab = 'rnorm(200, 0, 5)')
 
 # highlight four quadrant by sign
 text(5,5, '(+, +)', col = 'blue')
@@ -198,8 +177,8 @@ x-axis (regulatory potential value) value @Tang2011.
 Aggregate the effect of the factor perturbation in relation to its regulatory 
 potential.
 
-```{r ecdf}
-# make a random stat variabl
+```{r ecdf,fig.height=5,fig.width=5,fig.align='center'}
+# make a random stat variable
 set.seed(12345)
 t <- rnorm(200, 0, 5)
 
@@ -208,14 +187,12 @@ ecdf_fun <- ecdf(t)
 
 # plot ecdf
 plot(ecdf_fun,
-     main = '',
-     xlab = 'rnorm(200, 0, 5)',
-     ylab = 'ECDF')
+     main = '', xlab = 'rnorm(200, 0, 5)', ylab = 'ECDF')
 ```
 
 # Workflow for integrating binding and expression data
 
-[Diagram](diagram.jpg)
+![Workflow](diagram.jpg)
 
 # Functions in the `target` _R_ package
 
@@ -255,6 +232,6 @@ directly on the web, [here](https://mahshaaban.shinyapps.io/target-app/)
 - The source code for the package and the interactive application are available 
 [here](https://github.com/MahShaaban/target)
 
-Code Walkthrough (--> Next)
+### Code Walkthrough (--> Next)
 
 ## References

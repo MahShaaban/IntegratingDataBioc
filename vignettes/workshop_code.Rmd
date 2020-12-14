@@ -61,7 +61,7 @@ Using the target analysis, we will attempt to answer the following questions:
 
 To answer these questions, we use publicly available datasets.
 
-: (\#tab:datasets) Expression and binding data of YY1 and YY2 in HeLa cells.
+Table 1. Expression and binding data of YY1 and YY2 in HeLa cells.
 
 | GEO ID | Data Type   | Design        | Ref.         |
 |--------|-------------|---------------|--------------|
@@ -78,6 +78,8 @@ two conditions from [KnockTF](http://www.licpathway.net/KnockTF/index.html).
 - USSC hg19 human genome to extract the genomic annotations
 
 ```{r download,include=FALSE}
+# what directory are you in?
+
 if(!file.exists('data.zip')) {
   # download the manuscript data
   download.file(
@@ -167,13 +169,13 @@ table(express$YY2$fc > 0, express$YY2$pvalue < .01)
 ```
 
 The knockdown of either factor in HeLa cells seem to change the expression of 
-many genes in either directions (Figure \@ref(fig:foldchange)A&B). Moreover, the
+many genes in either directions (Figure 1A&B). Moreover, the
 changes resulting from the knockdown of the factors individually are correlated 
-(Figure \@ref(fig:foldchange)C). This suggest that, many of the regulated genes 
+(Figure 1C). This suggest that, many of the regulated genes 
 are shared targets of the two factors or they respond similarly to their 
 perturbation of either factor.
 
-```{r foldchange,fig.height=3,fig.width=9,out.width='100%',fig.cap='Differential expression between factor knockdown and control HeLa cells. Gene expression was compared between transcription factors knockdown and control HeLa cells. The fold-change and p-values of (A) YY1- and (B) YY2-knockdown are shown as volcano plots. (C) Scatter plot of the fold-change of the YY1- and YY2-knockdown.'}
+```{r foldchange,fig.height=3,fig.width=9,out.width='100%',fig.cap='Figure 1. Differential expression between factor knockdown and control HeLa cells. Gene expression was compared between transcription factors knockdown and control HeLa cells. The fold-change and p-values of (A) YY1- and (B) YY2-knockdown are shown as volcano plots. (C) Scatter plot of the fold-change of the YY1- and YY2-knockdown.'}
 # Figure 1
 par(mfrow = c(1, 3))
 # volcano plot of YY1 knockdown
@@ -343,7 +345,7 @@ Because the ranks rather than the absolute value of the regulatory potential is
 used, the lower the value the higher the potential. Then the groups of targets 
 can be compared to each other or to a theoretical distribution.
 
-```{r functions,results='hide',fig.height=3,fig.width=9,out.width='100%',fig.cap='Predicted functions of YY1 and YY2 on their specific targets. Bindings peaks of the transcription factors in HeLa cells were determined using ChIP-Seq. Distances from the transcription start sites and the transformed distances of the (A) YY1 and YY2 peaks are shown. The regulatory potential of each gene was calculated using target. Genes were grouped into up, none or down regulated based on the fold-change. The emperical cumulative distribution functions (ECDF) of the groups of (C) YY1 and (D) YY2 targets are shown at each regulatory potential value.'}
+```{r functions,results='hide',fig.height=3,fig.width=9,out.width='100%',fig.cap='Figure 2. Predicted functions of YY1 and YY2 on their specific targets. Bindings peaks of the transcription factors in HeLa cells were determined using ChIP-Seq. Distances from the transcription start sites and the transformed distances of the (A) YY1 and YY2 peaks are shown. The regulatory potential of each gene was calculated using target. Genes were grouped into up, none or down regulated based on the fold-change. The emperical cumulative distribution functions (ECDF) of the groups of (C) YY1 and (D) YY2 targets are shown at each regulatory potential value.'}
 # Figure 2
 par(mfrow = c(1, 3))
 
@@ -376,15 +378,14 @@ from the transcription start sites.
 
 The closer the factor binding site from the start site the lower the score. The
 distribution of these scores is very similar for both factors (Figure 
-\@ref(fig:functions)A). The ECDF of the down-regulated of YY1 is higher than 
-that of up- and none-regulated targets (Figure \@ref(fig:functions)B). 
+2A). The ECDF of the down-regulated of YY1 is higher than 
+that of up- and none-regulated targets (Figure 2B). 
 Therefore, the absence of YY1 on its targets result in aggregate in their down
 regulation. If indeed these are true targets then we expect YY1 to induce their 
 expression. 
 
 The opposite is true for YY2 where more 
-high ranking targets are up-regulated by the factor knockdown (Figure 
-\@ref(fig:functions)C).
+high ranking targets are up-regulated by the factor knockdown (Figure 2C).
 
 ```{r tests,eval=FALSE}
 # Table 2
@@ -395,7 +396,7 @@ map2(dt, groups,
                        compare = c('Down', 'Up')))
 ```
 
-: (\#tab:tests) Testing for statistical significance of the regulated gene groups.
+Table 2. Testing for statistical significance of the regulated gene groups.
 
 | Factor | Statistic| P.value| Method             | Alternative |
 |--------|----------|--------|--------------------|-------------|
@@ -406,8 +407,7 @@ To formally test these observations, we use the Kolmogorov-Smirnov (KS) test.
 The distribution of the two groups are compared for equality. If one lies one 
 either side of the other then they must be drawn from different distributions. 
 
-Here, we compared the up and down regulated functions for both factors (Table 
-\@ref(tab:tests)).
+Here, we compared the up and down regulated functions for both factors (Table 2).
 
 In both cases, the distribution of the two groups were significantly different 
 from one another.
@@ -469,7 +469,7 @@ bind to the same site on that gene.
 targets, the two factors would be expected to compete for inducing opposing 
 changes in the expression.
 
-```{r function,fig.height=5,fig.width=10,out.width='100%',fig.cap='Predicted function of YY1 and YY2 on their shared targets. Shared bindings sites of YY1 and YY2 in HeLa cells were determined using the overlap of the individual factor ChIP-Seq peaks. (A) Distances from the transcription start sites and the transformed distances of the shared peaks are shown. The regulatory interaction of each gene was calculated using target. Genes were grouped into cooperatively, none or competitively regulated based on the the product of the fold-changes from YY1- and YY2-knockdown. (B) The emperical cumulative distribution functions (ECDF) of the groups of targets are shown at each regulatory potential value.'}
+```{r function,fig.height=5,fig.width=10,out.width='100%',fig.cap='Figure 3. Predicted function of YY1 and YY2 on their shared targets. Shared bindings sites of YY1 and YY2 in HeLa cells were determined using the overlap of the individual factor ChIP-Seq peaks. (A) Distances from the transcription start sites and the transformed distances of the shared peaks are shown. The regulatory interaction of each gene was calculated using target. Genes were grouped into cooperatively, none or competitively regulated based on the the product of the fold-changes from YY1- and YY2-knockdown. (B) The emperical cumulative distribution functions (ECDF) of the groups of targets are shown at each regulatory potential value.'}
 # Figure 3
 par(mfrow = c(1, 2))
 # plot distiace by score for associated peaks
@@ -496,14 +496,12 @@ plot_predictions(common_dt$score_rank,
 title('(B)')
 ```
 
-- The common peaks distances and scores take the same shape (Figure 
-\@ref(fig:function)A). 
+- The common peaks distances and scores take the same shape (Figure 3A). 
 - The two factors seem to cooperate on more of the common target than any of the 
-two other possibilities (Figure \@ref(fig:function)B). 
+two other possibilities (Figure 3B). 
 
 This observation can be tested using the KS test. The curve of the cooperative 
-targets lies above that of none and competitively regulated targets (Table
-\@ref(tab:test)).
+targets lies above that of none and competitively regulated targets (Table 3).
 
 ```{r test,eval=FALSE}
 # Table 3
@@ -520,7 +518,7 @@ test_predictions(common_dt$score_rank,
                  alternative = 'greater')
 ```
 
-: (\#tab:test) Testing for statistical significance of combined functions of the
+Table 3. Testing for statistical significance of combined functions of the
 two factors.
 
 | Compare      | Statistic | P.value | Method  | Alternative                   |
@@ -532,12 +530,12 @@ two factors.
 
 - We present a workflow for predicting the direct targets of a transcription 
 factor by integrating binding and expression data.
-- The `target` package implements the BETA algorithm ranking gene targets based on
-the distance of the ChIP peaks of the transcription factor in the genes and the 
-differential expression of the factor perturbation. 
+- The `target` package implements the BETA algorithm ranking gene targets based 
+on the distance of the ChIP peaks of the transcription factor in the genes and 
+the differential expression of the factor perturbation. 
 - To predict the combined function of two factors, two sets of data are used to 
 find the shared peaks and the product of their differential expression.
 
-Open discussion (--> Next)
+### Open discussion (--> Next)
 
 # References
