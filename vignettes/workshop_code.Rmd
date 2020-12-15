@@ -28,7 +28,6 @@ library(tidyr)
 library(readr)
 library(purrr)
 library(GenomicRanges)
-library(Biostrings)
 library(rtracklayer)
 library(AnnotationDbi)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
@@ -75,7 +74,7 @@ Data pre-processing:
 two conditions from [KnockTF](http://www.licpathway.net/KnockTF/index.html).
 - The ChIP peaks were obtained in the form of `bed` files from 
 [ChIP-Atlas](https://chip-atlas.org).
-- USSC hg19 human genome to extract the genomic annotations
+- USSC hg19 human genome to extract the genomic annotation
 
 ```{r download,include=FALSE}
 # what directory are you in?
@@ -136,7 +135,7 @@ unique(strand(peaks$YY1))
 
 The differential expression data were downloaded in tabular format.
 
-- Locate the files in `data/`,
+- Locate the files in `data/`
 - Read the files using `read_tsv` 
 - Select and rename the relevant columns
 
@@ -172,7 +171,7 @@ The knockdown of either factor in HeLa cells seem to change the expression of
 many genes in either directions (Figure 1A&B). Moreover, the
 changes resulting from the knockdown of the factors individually are correlated 
 (Figure 1C). This suggest that, many of the regulated genes 
-are shared targets of the two factors or they respond similarly to their 
+are shared targets of the two factors or they respond similarly to the 
 perturbation of either factor.
 
 ```{r foldchange,fig.height=3,fig.width=9,out.width='100%',fig.cap='Figure 1. Differential expression between factor knockdown and control HeLa cells. Gene expression was compared between transcription factors knockdown and control HeLa cells. The fold-change and p-values of (A) YY1- and (B) YY2-knockdown are shown as volcano plots. (C) Scatter plot of the fold-change of the YY1- and YY2-knockdown.'}
@@ -213,7 +212,7 @@ cor(
 
 ## Preparing genome annotation
 
-The gene information in `express` is recorded using the gene SYMBOLS.
+The gene information in `express` are recorded using the gene SYMBOLS.
 
 - Map SYMBOLS to the ENTREZIDs using `org.Hs.eg.db`
 - Extract the genomic coordinates from `TxDb.Hsapiens.UCSC.hg19.knownGene` 
@@ -247,10 +246,10 @@ TxDb.Hsapiens.UCSC.hg19.knownGene
 show(genome)
 ```
 
-The resulting object, `genome`, from the previous step is a `tibble` that shares
-the column `gene_id` with the expression data `express`. 
+The resulting object, `genome_df`, from the previous step is a `tibble` that 
+shares the column `gene_id` with the expression data `express`. 
 
-Now the two objects can be merged. The merged object, `regions`, is similarly 
+Now the two objects can be merged. The merged object, `regions`, is similarly a
 `tibble` that contains genome and expression information of all common genes. 
  
 ```{r make_regions}
@@ -277,15 +276,15 @@ unique(width(regions$YY1))
 The standard target analysis includes the identification of associated peaks 
 using `associated_peaks` and direct targets using `direct_targets`.
 
-The input for these functions are
+The inputs for these functions are
 
 - `peaks` 
 - `regions`
 - `regions_col`, the column names for regions 
-- `stats_col`, the statistics column  which is the fold-change in this case.
+- `stats_col`, the statistics column which is the fold-change in this case.
 
 The resulting objects are `GRanges` for the identified peaks assigned to the 
-regions `ap` or the ranked targets. Several columns is added to the metadata 
+regions or the ranked targets. Several columns is added to the metadata 
 objects of the `GRanges` to save the calculations.
 
 ```{r associated_peaks}
@@ -335,11 +334,9 @@ head(dt$YY1$rank)
 
 To determine the dominant function of a factor,
 
-- We divide the targets by the direction of the effect of knockdown of the 
-factor on the expression of the target and show the regulatory potential of the 
-target on these groups.
+- We divide the targets into groups based on the effect of the knockdown
 - We use the empirical distribution function (ECDF) to show the fraction of
-targets at a specified regulatory potential or less.
+targets at a specified regulatory potential value or less.
 
 Because the ranks rather than the absolute value of the regulatory potential is
 used, the lower the value the higher the potential. Then the groups of targets 
@@ -378,14 +375,13 @@ from the transcription start sites.
 
 The closer the factor binding site from the start site the lower the score. The
 distribution of these scores is very similar for both factors (Figure 
-2A). The ECDF of the down-regulated of YY1 is higher than 
+2A). The ECDF of the down-regulated targets of YY1 is higher than 
 that of up- and none-regulated targets (Figure 2B). 
 Therefore, the absence of YY1 on its targets result in aggregate in their down
-regulation. If indeed these are true targets then we expect YY1 to induce their 
-expression. 
+regulation.
 
-The opposite is true for YY2 where more 
-high ranking targets are up-regulated by the factor knockdown (Figure 2C).
+The opposite is true for YY2 where more high ranking targets are up-regulated by
+the factor knockdown (Figure 2C).
 
 ```{r tests,eval=FALSE}
 # Table 2
@@ -407,7 +403,8 @@ To formally test these observations, we use the Kolmogorov-Smirnov (KS) test.
 The distribution of the two groups are compared for equality. If one lies one 
 either side of the other then they must be drawn from different distributions. 
 
-Here, we compared the up and down regulated functions for both factors (Table 2).
+Here, we compared the up- and down-regulated functions for both factors 
+(Table 2).
 
 In both cases, the distribution of the two groups were significantly different 
 from one another.
@@ -528,11 +525,11 @@ two factors.
 
 # Summary 
 
-- We present a workflow for predicting the direct targets of a transcription 
+- I presented a workflow for predicting the direct targets of a transcription 
 factor by integrating binding and expression data.
-- The `target` package implements the BETA algorithm ranking gene targets based 
+- The `target` package implements the BETA algorithm to rank targets based 
 on the distance of the ChIP peaks of the transcription factor in the genes and 
-the differential expression of the factor perturbation. 
+the differential expression from the factor perturbation. 
 - To predict the combined function of two factors, two sets of data are used to 
 find the shared peaks and the product of their differential expression.
 

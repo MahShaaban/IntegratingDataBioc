@@ -33,7 +33,6 @@ Depends:
     Biobase
 Imports:
     GenomicRanges,
-    Biostrings,
     rtracklayer,
     AnnotationDbi,
     TxDb.Hsapiens.UCSC.hg19.knownGene,

@@ -57,8 +57,8 @@ plot(d, decay_func(d),
 
 ## Modeling the regulatory potential as the sum of the weighted peaks
 
-Gene Score ($S_g$): is the sum of the scores ($S_p$) of the $k$ nearby peaks 
-from the TSS.
+Gene Score ($S_g$): is the sum of the scores ($S_p$) of the $k$ peaks nearby the
+TSS.
 
 $$S_g = \sum_{i=1}^k S_{pi}$$
 
@@ -87,8 +87,8 @@ plot(n, s,
 
 ## Integrating the factor binding and the expression information
 
-Rank Product ($RP_g$): the gene score ($R_{gb}$) is multiplied by the gene 
-statistics ($R_{ge}$) from differential expression @Breitling2004.
+Rank Product ($RP_g$): the gene score ($R_{gb}$) rank is multiplied by the gene 
+statistics rank ($R_{ge}$) from differential expression @Breitling2004.
 
 $$
 RP_g = \frac{R_{gb}\times R_{ge}}{n^2}
@@ -136,7 +136,7 @@ abline(v = 0, col = 'red')
 ## Modeling the interaction of two factors using independent perturbations
 
 Regulatory Interaction ($RI$): is the product of the gene statistics from 
-differential expression of the perturbation of the two factors ($X$ and $Y$) 
+differential expression of the perturbation of the two factors ($x$ and $y$) 
 separately.
 
 $$
@@ -227,9 +227,9 @@ may not be the case always.
 
 - `target` is available as an open source R/Bioconductor package, 
 [here](https://bioconductor.org/packages/target/)
-- An interactive application can be invoked locally through R or accessed 
+- An interactive shiny application can be invoked locally through R or accessed 
 directly on the web, [here](https://mahshaaban.shinyapps.io/target-app/)
-- The source code for the package and the interactive application are available 
+- The source code for the package and the interactive application is available 
 [here](https://github.com/MahShaaban/target)
 
 ### Code Walkthrough (--> Next)

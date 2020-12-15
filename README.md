@@ -9,7 +9,7 @@ binding sites. They use gene expression data from sequencing or microarrays to
 quantify the effect of the factor over-expression or knockdown on 
 its targets. The integration of the binding and expression data therefore can be
 used to improve the understanding of a transcription factor function. In this
-workshop, we present a complete workflow for integrating the gene expression 
+workshop, I present a complete workflow for integrating the gene expression 
 (RNA-seq) and DNA-binding data (ChIP-seq) to predict the combined function of 
 two transcription factors using R/Bioconductor. The example we will be using in 
 the workshop is from real datasets of two functionally and evolutionary related
@@ -36,6 +36,9 @@ Participants are expected to walk through the code (rmarkdown document). A brief
 introduction will be given at the beginning to introduce the package and
 discussion will be at the end.
 
+Live instances of the workshops can be launched in the cloud freely at
+[http://app.orchestra.cancerdatasci.org/](http://app.orchestra.cancerdatasci.org/).
+
 To run the materials locally, use the docker image 
 [mahshaaban/targetshop](https://hub.docker.com/repository/docker/mahshaaban/targetshop/)
 and knit the `Rmd` files in `vignettes/` from within Rstudio.
@@ -57,7 +60,6 @@ in the browser. The login username is always `rstudio` and the password is
 Data management
 
 - GenomicRanges
-- Biostrings
 - rtracklayer
 - AnnotationDbi
 - readr
@@ -81,19 +83,18 @@ Annotation packages
 ## Workshop goals and objectives
 
 The workshop aims to teach participants how to use R/Bioconductor packages to 
-read in differential expression and binding peaks data, apply functions 
-predictive analysis and explore its output. We hope that by providing a 
+read in differential expression and binding peaks data, run a 
+predictive analysis and explore its output. I hope that by providing a 
 complete realistic example, participants would develop an understanding of the 
 issues and the importance of integrating those two types of data. Ideally,
-participants would be able to adapt this knowledge and the workflow to apply 
+participants would be able to adapt this code and the workflow to apply 
 this kind of analysis to their own datasets.
 
 ## Learning goals
 
 - Learn to read differential expression and binding peaks data into the 
 appropriate R objects
-- Learn to use Bioconductor annotation packages to extract the genomic 
-coordinates to match peaks to genes
+- Learn to use Bioconductor packages to extract the genomic annotation
 - Learn to prepare the expression and binding data for `target` analysis
 - Understand the `target` output through the package visualization and testing 
 tools
