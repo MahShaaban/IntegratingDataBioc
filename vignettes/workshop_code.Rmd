@@ -219,20 +219,24 @@ The gene information in `express` are recorded using the gene SYMBOLS.
 - Resize the transcripts to 100kb upstream from transcription start sites
 
 ```{r load_genome}
-# load genome data
+# map symbols to entrez ids
 symbol_entrez <- AnnotationDbi::select(org.Hs.eg.db,
                                        keys = express$YY1$gene,
                                        columns = 'ENTREZID',
-                                       keytype = 'SYMBOL') %>%
-  setNames(c('gene', 'gene_id'))
+                                       keytype = 'SYMBOL')
 
-# format genome to join with express
+# remove unmapped genes
+symbol_entrez <- na.omit(symbol_entrez)
+
+# resize regions
 genome <- promoters(TxDb.Hsapiens.UCSC.hg19.knownGene,
                     upstream = 100000,
+                    filter = list(gene_id = symbol_entrez$ENTREZID),
                     columns = c('tx_id', 'tx_name', 'gene_id'))
 
-genome_df <- as_tibble(genome) %>%
-  mutate(gene_id = as.character(gene_id))
+# match and add symbols
+ind <- match(genome$gene_id@unlistData, symbol_entrez$ENTREZID)
+genome$gene <- symbol_entrez$SYMBOL[ind]
 ```
 
 ```{r explore_genome}
@@ -246,18 +250,23 @@ TxDb.Hsapiens.UCSC.hg19.knownGene
 show(genome)
 ```
 
-The resulting object, `genome_df`, from the previous step is a `tibble` that 
-shares the column `gene_id` with the expression data `express`. 
-
 Now the two objects can be merged. The merged object, `regions`, is similarly a
-`tibble` that contains genome and expression information of all common genes. 
+`GRanges` that contains genome and expression information of all common genes. 
  
 ```{r make_regions}
 # make regions by merging the genome and express data
 regions <- map(express,
-               ~inner_join(genome_df, symbol_entrez) %>%
-                 inner_join(.x) %>%
-                 makeGRangesFromDataFrame(keep.extra.columns = TRUE))
+               ~{
+                 # make a copy of genome
+                 gr <- genome
+                 
+                 # match gene names 
+                 ind <- match(gr$gene, .x$gene)
+                 
+                 # add the expression info to the metadata
+                 mcols(gr) <- cbind(mcols(gr), .x[ind,])
+                 gr
+               })
 ```
 
 ```{r explore_regions}
@@ -383,7 +392,7 @@ regulation.
 The opposite is true for YY2 where more high ranking targets are up-regulated by
 the factor knockdown (Figure 2C).
 
-```{r tests,eval=FALSE}
+```{r tests}
 # Table 2
 # test individual factor functions
 map2(dt, groups,
@@ -391,13 +400,6 @@ map2(dt, groups,
                        group = .y,
                        compare = c('Down', 'Up')))
 ```
-
-Table 2. Testing for statistical significance of the regulated gene groups.
-
-| Factor | Statistic| P.value| Method             | Alternative |
-|--------|----------|--------|--------------------|-------------|
-| YY1    | 0.224    | 2.2e-16| Two-sample KS test | two-sided   |
-| YY2    | 0.149    | 2.5e-15| Two-sample KS test | two-sided   |
 
 To formally test these observations, we use the Kolmogorov-Smirnov (KS) test. 
 The distribution of the two groups are compared for equality. If one lies one 
@@ -429,10 +431,14 @@ both_express <- bind_rows(express) %>%
   pivot_wider(names_from = tf,
               values_from = c(fc, pvalue))
 
-# make regions using genome and expression data of both factors
-both_regions <- inner_join(genome_df, symbol_entrez) %>%
-  inner_join(both_express) %>%
-  makeGRangesFromDataFrame(keep.extra.columns = TRUE)
+# match symbols between genome and expression objects
+ind <- match(genome$gene, both_express$gene)
+
+# subset genome by genes with expression info
+both_regions <- genome[genome$gene %in% both_express$gene]
+
+# add expression info to gene info
+mcols(both_regions) <- cbind(mcols(both_regions), both_express[ind,])  
 ```
 
 ```{r common_ap}
@@ -500,7 +506,7 @@ two other possibilities (Figure 3B).
 This observation can be tested using the KS test. The curve of the cooperative 
 targets lies above that of none and competitively regulated targets (Table 3).
 
-```{r test,eval=FALSE}
+```{r test}
 # Table 3
 # test factors are cooperative
 test_predictions(common_dt$score_rank,
@@ -514,14 +520,6 @@ test_predictions(common_dt$score_rank,
                  compare = c('Cooperative', 'Competitive'),
                  alternative = 'greater')
 ```
-
-Table 3. Testing for statistical significance of combined functions of the
-two factors.
-
-| Compare      | Statistic | P.value | Method  | Alternative                   |
-|--------------|-----------|---------|---------|-------------------------------|
-| Coop vs None | 0.168     |1.5e-30  | KS test | CDF of x lies above that of y |
-| Coop vs Comp | 0.151     |2.2e-16  | KS test | CDF of x lies above that of y |
 
 # Summary 
 
