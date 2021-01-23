@@ -1,5 +1,5 @@
-Package: targetShop
-Title: Integration of ChIP-seq and RNA-seq data in R
+Package: IntegratingDataBioc
+Title: Integrating gene expression and DNA-binding data using R/Bioconductor
 Version: 0.0.1
 Authors@R: 
     person(given = "Mahmoud",
@@ -21,9 +21,7 @@ Description: Researchers use ChIP binding data to identify potential
     factor-specific and the shared targets of the factors in this particular 
     cell line. Then we will use a technique find out the aggregate functions of 
     the factors on their individual (inducer or repressor) and common targets
-    (cooperative or competitive). The first half of the workshop would be 
-    dedicated to introduce the target package followed by a walk through the 
-    workflow interactively in a live demo in the second half.
+    (cooperative or competitive).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -46,7 +44,7 @@ Suggests:
     knitr,
     rmarkdown,
     pkgdown
-URL: https://MahShaaban.github.io/targetShop/
-BugReports: https://github.com/MahShaaban/targetShop/issues/new/choose
+URL: https://MahShaaban.github.io/IntegratingDataBioc/
+BugReports: https://github.com/MahShaaban/IntegratingDataBioc/issues/new/choose
 VignetteBuilder: knitr
-DockerImage: mahshaaban/targetshop:latest
+DockerImage: mahshaaban/target:latest

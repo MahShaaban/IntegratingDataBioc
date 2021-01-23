@@ -1,0 +1,84 @@
+---
+title: "Introduction Bioconductor packages"
+author: Mahmoud Ahmed^[mahshaaban@gnu.ac.kr]
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction Bioconductor packages}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Overview
+
+# Types of Packages
+
+- Software
+- Annotation
+- Experiment data
+
+## Software Packages
+
+Provide implementation of algorithms (e.g. statistical analysis),
+access to resources (e.g. biomart, or NCBI) 
+or visualizations (e.g. volcano plots, pathways plots).
+
+Packages relevant to the workshop
+
+### `GenomicRanges`
+
+### `rtracklayer`
+
+**Show how ChIP-seq data look like**
+
+### `AnnotationDbi`
+
+### `target`
+
+## Annotation Packages
+
+Database-like packages that provide information linking identifiers (e.g., 
+Entrez gene names or Affymetrix probe ids) to other information (e.g., 
+chromosomal location, Gene Ontology category). 
+It is also encouraged to utilize AnnotationHub for storage and access to large 
+raw data files and their conversion to standard R formats.
+
+Packages relevant to the workshop
+
+### `TxDb.Hsapiens.UCSC.hg19.knownGene`
+
+### `org.Hs.eg.db`
+
+## Experiment Data Packages
+
+provide data sets that are used, often by software packages, to illustrate 
+particular analyses. These packages contain curated data from an experiment, 
+teaching course or publication and in most cases contain a single data set. 
+It is also encouraged to utilize ExperimentHub for storage and access to larger 
+data files.
+
+# Bioconductor Classes
+
+- S4 classes
+- Three-table structures
+- Accessors and constructors
+
+## `SummarizedExperiments`
+
+## `GRanges`
+
+# An example
+
+## Downloading a dataset
+
+## Annotating features
+
+## Performing an analysis
+**Show how RNA-seq data look like**

@@ -1,4 +1,4 @@
-url: https://MahShaaban.github.io/targetShop
+url: https://MahShaaban.github.io/IntegratingDataBioc
 
 template:
   params:
@@ -6,13 +6,13 @@ template:
     ganalytics: UA-93043521-1
 
 home:
-  title: "targetShop"
+  title: "IntegratingDataBioc"
   type: inverse
 
 
 navbar:
   right:
    - icon: fa-github
-     href: https://github.com/MahShaaban/targetShop
+     href: https://github.com/MahShaaban/IntegratingDataBioc
      
 
