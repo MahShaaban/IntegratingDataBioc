@@ -65,8 +65,8 @@ open -a Rstudio vignette/workshop_code.Rmd
 and knit the `Rmd` files in `vignettes/` from within Rstudio.
  
 ```bash
-docker pull mahshaaban/IntegratingDataBioc:latest
-docker run -e PASSWORD=<a_password> -p 8787:8787 mahshaaban/IntegratingDataBioc:latest
+docker pull mahshaaban/target:latest
+docker run -e PASSWORD=<a_password> -p 8787:8787 mahshaaban/target:latest
 ```
  
 An Rstudio session will be accessable at 
@@ -81,6 +81,7 @@ in the browser. The login username is always `rstudio` and the password is
 Data management
 
 - GenomicRanges
+- GenomicFeatures
 - rtracklayer
 - AnnotationDbi
 - readr
@@ -97,7 +98,7 @@ Annotation packages
 
 | Activity                                                  | Time |
 |-----------------------------------------------------------|------|
-| Introduction to Bioconductor packages                     | 20m  |
+| Bioconductor packages and classes                         | 20m  |
 | Introduction to the target package                        | 20m  |
 | Code-walkthrough: A use case of YY1 and YY2 in HeLa cells | 20m  |
 

@@ -1,10 +1,10 @@
 ---
-title: "Introduction Bioconductor packages"
+title: "Introduction: Bioconductor packages and classes"
 author: Mahmoud Ahmed^[mahshaaban@gnu.ac.kr]
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction Bioconductor packages}
+  %\VignetteIndexEntry{Introduction: Bioconductor packages and classes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,11 +12,15 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message = FALSE
 )
 ```
 
 # Overview
+
+This is a brief introduction to Bioconductor. We will cover the basics of the 
+Bioconductor **packages** and **classes** that are relevant to the workshop.
 
 # Types of Packages
 
@@ -30,18 +34,6 @@ Provide implementation of algorithms (e.g. statistical analysis),
 access to resources (e.g. biomart, or NCBI) 
 or visualizations (e.g. volcano plots, pathways plots).
 
-Packages relevant to the workshop
-
-### `GenomicRanges`
-
-### `rtracklayer`
-
-**Show how ChIP-seq data look like**
-
-### `AnnotationDbi`
-
-### `target`
-
 ## Annotation Packages
 
 Database-like packages that provide information linking identifiers (e.g., 
@@ -49,12 +41,6 @@ Entrez gene names or Affymetrix probe ids) to other information (e.g.,
 chromosomal location, Gene Ontology category). 
 It is also encouraged to utilize AnnotationHub for storage and access to large 
 raw data files and their conversion to standard R formats.
-
-Packages relevant to the workshop
-
-### `TxDb.Hsapiens.UCSC.hg19.knownGene`
-
-### `org.Hs.eg.db`
 
 ## Experiment Data Packages
 
@@ -66,19 +52,169 @@ data files.
 
 # Bioconductor Classes
 
-- S4 classes
 - Three-table structures
+
+![Summarized Experiment Object](three_tables.svg)
+
 - Accessors and constructors
+
+```r
+# constructors
+obj <- SomeObject(data, metadata)
+
+# accessors
+data(obj)
+```
+# Packages relevant to the workshop
+
+## `GenomicRanges`
+
+```{r genomic_ranges}
+# load library
+library(GenomicRanges)
+
+# build an IRanges object
+regions <- IRanges(start = c(1, 10),
+                   end   = c(11, 20),
+                   names = c('region_1', 'region_2'))
+
+regions
+
+# build a GRanges object
+GRanges(seqnames = c('chr1', 'chr1'),
+        ranges = regions)
+
+# add strand info to the object
+gr <- GRanges(seqnames = c('chr1', 'chr1'),
+              ranges = regions,
+              strand = c('+', '+'))
+
+gr
+
+# add metadata to the object
+gr$region_name <- c('first', 'second')
+
+gr
+
+# accessors
+seqnames(gr)
+start(gr)
+end(gr)
+strand(gr)
+width(gr)
+mcols(gr)
+```
 
 ## `SummarizedExperiments`
 
-## `GRanges`
+```{r summarized_experiments}
+# load library
+library(SummarizedExperiment)
 
-# An example
+# make a data.frame with phenotype data
+pd <- data.frame(id = paste('sample', 1:2, sep = '_'),
+                 group = rep(c('control', 'treatment'), each = 2))
 
-## Downloading a dataset
+# make a 2 by 4 matrix with values
+mat <- matrix(rnorm(8), nrow = 2)
 
-## Annotating features
+# build a SummarizedExperiment object
+se <- SummarizedExperiment(assays = mat,
+                           rowData = gr,
+                           colData = pd)
+se
 
-## Performing an analysis
-**Show how RNA-seq data look like**
+# accessors
+assay(se)
+rowData(se)
+rowRanges(se)
+colData(se)
+```
+
+## `rtracklayer`
+
+```{r r_track_layer}
+# load library
+library(rtracklayer)
+
+# export a GRanges object as a bed file
+export.bed(gr, 'regions.bed')
+
+# import a bed file as GRanges
+import.bed('regions.bed')
+```
+
+## `org.Hs.eg.db`
+
+```{r organism_pkg}
+# load library
+library(org.Hs.eg.db)
+
+# shorter name
+org <- org.Hs.eg.db
+org
+
+# show names of columns
+columns(org)
+```
+
+## `TxDb.Hsapiens.UCSC.hg19.knownGene`
+
+```{r taxonomy_pkg}
+# load library
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+
+# shorter name
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+txdb
+
+# show names of columns
+columns(txdb)
+```
+
+## `AnnotationDbi`
+
+```{r annotation_dbi}
+# load library
+library(AnnotationDbi)
+
+# map gene symbols to entrez ids from the organism pkg
+gene_ids <- select(org,
+                   keys = c('ATG5', 'ATG7'),
+                   keytype = 'SYMBOL',
+                   columns = 'ENTREZID')
+gene_ids
+```
+
+```{r genomic_features}
+# load library
+library(GenomicFeatures)
+
+# extract gene coordinates from the taxonomy pkg
+gene_coordinates <- genes(txdb,
+                          filter = list(gene_id = gene_ids$ENTREZID))
+
+gene_coordinates
+
+# extract promoter regions
+gene_promoters <- promoters(gene_coordinates,
+                            upstream = 3000)
+
+gene_promoters
+```
+
+## `target`
+
+```{r target,eval=FALSE}
+# load library
+library(target)
+
+# get help pages
+?target
+?target::associated_peaks
+
+# explore package vignettes
+vignette(package = 'target')
+vignette('target')
+vignette('extend-target')
+```
