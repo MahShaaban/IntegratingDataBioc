@@ -80,7 +80,7 @@
       <a href="articles/workshop_introduction.html">Introduction: Introduction to target package</a>
     </li>
     <li>
-      <a href="articles/workshop_packages.html">Introduction Bioconductor packages</a>
+      <a href="articles/workshop_packages.html">Introduction: Bioconductor packages and classes</a>
     </li>
   </ul>
 </li>
@@ -144,8 +144,8 @@
 <ol>
 <li>Use the docker image <a href="https://hub.docker.com/repository/docker/mahshaaban/IntegratingDataBioc/">mahshaaban/IntegratingDataBioc</a> and knit the <code>Rmd</code> files in <code>vignettes/</code> from within Rstudio.</li>
 </ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull mahshaaban/IntegratingDataBioc:latest</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run -e PASSWORD=<span class="op">&lt;</span>a_password<span class="op">&gt;</span> -p 8787:8787 mahshaaban/IntegratingDataBioc:latest</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull mahshaaban/target:latest</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run -e PASSWORD=<span class="op">&lt;</span>a_password<span class="op">&gt;</span> -p 8787:8787 mahshaaban/target:latest</span></code></pre></div>
 <p>An Rstudio session will be accessable at <a href="https://localhost:8787/">https://localhost:8787/</a> in the browser. The login username is always <code>rstudio</code> and the password is <code>&lt;a_password&gt;</code>.</p>
 </div>
 <div id="r--bioconductor-packages-used" class="section level2">
@@ -157,6 +157,7 @@
 <p>Data management</p>
 <ul>
 <li>GenomicRanges</li>
+<li>GenomicFeatures</li>
 <li>rtracklayer</li>
 <li>AnnotationDbi</li>
 <li>readr</li>
@@ -180,7 +181,7 @@
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>Introduction to Bioconductor packages</td>
+<td>Bioconductor packages and classes</td>
 <td>20m</td>
 </tr>
 <tr class="even">
