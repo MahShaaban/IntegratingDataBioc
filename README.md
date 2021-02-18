@@ -1,6 +1,6 @@
 ![.github/workflows/basic_checks.yaml](https://github.com/MahShaaban/IntegratingDataBioc/workflows/.github/workflows/basic_checks.yaml/badge.svg)
 
-- This workshop is scheduled for February, 26 and is hosted by
+- This workshop is scheduled for February, 27 and is hosted by
 [R-Ladies Tunisia](https://rladies.org/tunisia-rladies/) 
 as part of the
 [R4Bioinfo](R4Bioinfo) series.
