@@ -3,7 +3,7 @@
 - This workshop is scheduled for February, 27 and is hosted by
 [R-Ladies Tunisia](https://rladies.org/tunisia-rladies/) 
 as part of the
-[R4Bioinfo](R4Bioinfo) series.
+[R4Bioinfo](R4Bioinfo) series. [(Event Page).](https://www.meetup.com/rladies-tunis/events/276421511/)
 - Part of the materials was presented at 
 [EuropBioc 2021](https://github.com/MahShaaban/targetShop). 
 - The code is organized in a 
@@ -51,6 +51,8 @@ RStudio (free). Create a New Project > New Project from Git Repository and paste
 this URL in the pop up box 
 [MahShaaban/IntegratingDataBioc](https://github.com/MahShaaban/IntegratingDataBioc)
 
+PS: Hit or miss due to limited resources on the free tier
+
 2. Use RStudio locally to install the required packages and run the code after
 cloning this repo
 
@@ -73,6 +75,14 @@ An Rstudio session will be accessable at
 [https://localhost:8787/](https://localhost:8787/)
 in the browser. The login username is always `rstudio` and the password is 
 `<a_password>`.
+
+The packaged is tested using the docker image (option 3) on GitHub 
+[Actions](https://github.com/MahShaaban/IntegratingDataBioc/actions).
+To make sure everything is working fine on your end, run the following in RStudio
+```r
+rcmdcheck::rcmdcheck(args = c("--no-manual"), error_on = "warning", check_dir = "check")
+```
+There should be no errors or warnings. 
 
 ## _R_ / _Bioconductor_ packages used
 
