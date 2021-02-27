@@ -1,11 +1,11 @@
-pandoc: 2.11.2
+pandoc: 2.11.4
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   workshop_code: workshop_code.html
   workshop_introduction: workshop_introduction.html
   workshop_packages: workshop_packages.html
-last_built: 2021-02-18T08:21Z
+last_built: 2021-02-27T03:58Z
 urls:
   reference: https://MahShaaban.github.io/IntegratingDataBioc/reference
   article: https://MahShaaban.github.io/IntegratingDataBioc/articles
